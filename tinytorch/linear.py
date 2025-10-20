@@ -1,5 +1,6 @@
 from typing import Sequence
 import numpy as np
+from tinytorch.error import ForwardNotCalledError
 from tinytorch.module import Module
 from tinytorch.parameter import Parameter, he_normal_params, zeros_params
 
@@ -68,7 +69,7 @@ class Linear(Module):
     """
 
     if self._x is None:
-      raise RuntimeError("Must call forward() before backward()")
+      raise ForwardNotCalledError()
 
     grad_in = grad_out @ self.W.data.T
     self.W.grad += self._x.T @ grad_out
