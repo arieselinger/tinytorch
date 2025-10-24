@@ -19,8 +19,11 @@ class ReLU(Module):
 
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
     """
-    grad_out: shape (B, *d)
-    grad_in: shape (B, *d)
+    Args:
+      grad_out: shape (B, *d)
+
+    Output:
+      grad_in: shape (B, *d)
     """
     if self._x is None:
       raise ForwardNotCalledError()
