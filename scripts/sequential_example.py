@@ -1,6 +1,7 @@
 import numpy as np
 from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
+from tinytorch.activations.softmax import Softmax
 from tinytorch.linear import Linear
 from tinytorch.sequence import Sequential
 
@@ -15,10 +16,11 @@ d4 = 17
 model = Sequential(
   [
     Linear(d1, d2),
-    Linear(d2, d3),
     ReLU(),
-    Linear(d3, d4),
+    Linear(d2, d3),
     Sigmoid(),
+    Linear(d3, d4),
+    Softmax(),
   ]
 )
 
