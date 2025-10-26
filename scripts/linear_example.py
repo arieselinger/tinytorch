@@ -1,5 +1,5 @@
 import numpy as np
-from tinytorch.linear import Linear
+from tinytorch.layers.linear import Linear
 
 # Constants
 batch_size = 12

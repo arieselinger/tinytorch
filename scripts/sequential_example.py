@@ -2,7 +2,7 @@ import numpy as np
 from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
-from tinytorch.linear import Linear
+from tinytorch.layers.linear import Linear
 from tinytorch.sequence import Sequential
 
 # Constants

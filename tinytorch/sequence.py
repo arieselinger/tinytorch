@@ -1,6 +1,6 @@
 import numpy as np
 from typing import Sequence
-from tinytorch.module import Module
+from tinytorch.layers.module import Module
 from tinytorch.parameter import Parameter
 
 

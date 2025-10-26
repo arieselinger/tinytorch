@@ -1,6 +1,6 @@
 from typing import Sequence
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.module import Module
+from tinytorch.layers.module import Module
 import numpy as np
 
 from tinytorch.parameter import Parameter

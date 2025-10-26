@@ -1,7 +1,7 @@
 from typing import Sequence
 import numpy as np
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.module import Module
+from tinytorch.layers.module import Module
 from tinytorch.parameter import Parameter, he_normal_params, zeros_params
 
 
