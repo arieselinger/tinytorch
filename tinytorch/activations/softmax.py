@@ -19,7 +19,7 @@ class Softmax(Module):
 
     Notes
       1. Softmax encodes relative positions since each vector can be shifted by a constant c:
-      exp(x) / sum{exp(x)} = exp(x-c) / sum{exp(x-c)
+      exp(x) / sum{exp(x)} = exp(x-c) / sum{exp(x-c)}
       2. For numerical stability, we compute c = max(x)
     """
     x_max = np.max(x, axis=-1, keepdims=True)  # shape (B, ..., 1)
@@ -33,15 +33,22 @@ class Softmax(Module):
       grad_out: shape (B, ..., d_classes)
       self._s: shape (B, ..., d_classes)
 
-    Gradients:
-    > s[j] = exp(x_j) / np.sum(exp(x))
-    > J_ji: ds[j]/dx[i] = s[i]*(d_ij - s[j])
-    > grad_in_j = J.T @ grad_out
-                = J_ji g_i
-                = (s[i]*(d_ij - s[j])) g[i]
-                = s[i]*dij*g[i] - s[i]s[j]g[i]
-                = s[j]g[j] - s[j]<s,g>
-                = s[j] * (g[j] - <s,g>)
+    ----
+
+    s[j] = exp(x[j]) / np.sum(exp(x))
+
+    Jacobian:
+      J_ji
+      = ds[j]/dx[i]
+      = s[i]*(d_ij - s[j])
+
+    grad_in[j]
+      = (J.T @ grad_out)[j]
+      = J_ji g[i]
+      = (s[i]*(d_ij - s[j])) g[i]
+      = s[i]*dij*g[i] - s[i]s[j]g[i]
+      = s[j]g[j] - s[j]<s,g>
+      = s[j] * (g[j] - <s,g>)
     """
     if self._s is None:
       raise ForwardNotCalledError()
