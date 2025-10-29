@@ -4,6 +4,7 @@ from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
 from tinytorch.layers.linear import Linear
 from tinytorch.sequence import Sequential
+from tinytorch.mse import MSELoss
 
 # Constants
 batch_size = 12
@@ -26,10 +27,15 @@ model = Sequential(
 
 # Forward
 x = np.random.randn(batch_size, d1)
-y = model(x)
+y_pred = model.forward(x)
+
+# Compute loss
+y_true = np.zeros_like(y_pred)
+criterion = MSELoss()
+loss = criterion.forward(y_pred, y_true)
 
 # Backward
-grad_y = np.random.randn(batch_size, d4)
-grad_x = model.backward(grad_y)
+grad_loss = criterion.backward()
+grad_x = model.backward(grad_loss)
 
 model.zero_grad()

@@ -15,9 +15,9 @@ l3 = Linear(d3, d4)
 
 # Forward
 x = np.random.randn(batch_size, d1)
-y = l1(x)
-z = l2(y)
-w = l3(z)
+y = l1.forward(x)
+z = l2.forward(y)
+w = l3.forward(z)
 
 # Backward
 grad_w = np.random.randn(batch_size, d4)

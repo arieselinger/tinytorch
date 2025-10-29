@@ -13,7 +13,7 @@ class Sequential(Module):
       x = m.forward(x)
     return x
 
-  def backward(self, grad_out: np.ndarray):
+  def backward(self, grad_out: np.ndarray) -> np.ndarray:
     grad = grad_out
     for m in reversed(self.layers):
       grad = m.backward(grad)

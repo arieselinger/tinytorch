@@ -1,22 +1,18 @@
-import numpy as np
 from abc import ABCMeta, abstractmethod
-from typing import Sequence
+from typing import Any, Sequence
 
 from tinytorch.parameter import Parameter
 
 
 class Module(metaclass=ABCMeta):
   @abstractmethod
-  def forward(self, x: np.ndarray) -> np.ndarray: ...
+  def forward(self, *args: Any, **kwargs: Any) -> Any: ...
 
   @abstractmethod
-  def backward(self, grad_out: np.ndarray) -> np.ndarray: ...
+  def backward(self, *args: Any, **kwargs: Any) -> Any: ...
 
   @abstractmethod
   def parameters(self) -> Sequence[Parameter]: ...
-
-  def __call__(self, x: np.ndarray) -> np.ndarray:
-    return self.forward(x)
 
   def zero_grad(self) -> None:
     for param in self.parameters():
