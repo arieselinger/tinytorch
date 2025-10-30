@@ -16,7 +16,7 @@ class Sigmoid(Module):
     Output:
       y = exp(x)/(1+exp(x)) = 1 / (1 + exp(-x))
     """
-    self._sigma = 1 / (1 + np.exp(-x))
+    self._sigma = 1.0 / (1 + np.exp(-x))
     return self._sigma
 
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
