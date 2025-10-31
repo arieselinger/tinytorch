@@ -21,7 +21,7 @@ class MSELoss(Module):
       raise RuntimeError("y_true and y_pred should have the same shapes")
     self._n = y_pred.size
     self._diff = y_pred - y_true
-    return np.sum(self._diff) / self._n
+    return np.sum(self._diff**2) / self._n
 
   def backward(self, grad_out: np.floating = np.float64(1.0)) -> np.ndarray:
     if self._n is None or self._diff is None:
