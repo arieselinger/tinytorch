@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Any, Sequence
 
-from tinytorch.parameter import Parameter
+from tinytorch.base.parameter import Parameter
 
 
 class Module(metaclass=ABCMeta):

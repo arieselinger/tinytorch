@@ -1,8 +1,8 @@
 from typing import Sequence
 import numpy as np
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.layers.module import Module
-from tinytorch.parameter import Parameter, he_normal_params, zeros_params
+from tinytorch.base.module import Module
+from tinytorch.base.parameter import Parameter, he_normal_params, zeros_params
 
 
 class Linear(Module):
