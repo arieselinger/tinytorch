@@ -2,10 +2,11 @@ import numpy as np
 from typing import Sequence
 from tinytorch.base.module import Module
 from tinytorch.base.parameter import Parameter
+from tinytorch.types import SingleInputModule
 
 
 class Sequential(Module):
-  def __init__(self, layers: Sequence[Module]) -> None:
+  def __init__(self, layers: Sequence[SingleInputModule]) -> None:
     self.layers = layers
 
   def forward(self, x: np.ndarray) -> np.ndarray:

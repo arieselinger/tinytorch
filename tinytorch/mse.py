@@ -3,9 +3,10 @@ from typing import Sequence
 from tinytorch.error import ForwardNotCalledError
 from tinytorch.base.module import Module
 from tinytorch.base.parameter import Parameter
+from tinytorch.types import LossModule
 
 
-class MSELoss(Module):
+class MSELoss(Module, LossModule):
   _diff: np.ndarray | None
   _n: int | None
 

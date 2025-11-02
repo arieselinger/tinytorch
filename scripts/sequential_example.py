@@ -3,7 +3,7 @@ from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
 from tinytorch.layers.linear import Linear
-from tinytorch.sequence import Sequential
+from tinytorch.layers.sequence import Sequential
 from tinytorch.mse import MSELoss
 
 # Constants
