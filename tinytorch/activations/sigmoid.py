@@ -1,11 +1,13 @@
 import numpy as np
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.base.module import Module
-from tinytorch.base.parameter import Parameter
+from tinytorch.module import Module
+from tinytorch.parameter import Parameter
 from typing import Sequence
 
+from tinytorch.types import SingleInputModuleProtocol
 
-class Sigmoid(Module):
+
+class Sigmoid(Module, SingleInputModuleProtocol):
   _sigma: np.ndarray | None
 
   def forward(self, x: np.ndarray) -> np.ndarray:

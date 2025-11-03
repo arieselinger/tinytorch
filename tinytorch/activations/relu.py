@@ -1,12 +1,13 @@
 from typing import Sequence
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.base.module import Module
+from tinytorch.module import Module
 import numpy as np
 
-from tinytorch.base.parameter import Parameter
+from tinytorch.parameter import Parameter
+from tinytorch.types import SingleInputModuleProtocol
 
 
-class ReLU(Module):
+class ReLU(Module, SingleInputModuleProtocol):
   _x: np.ndarray | None
 
   def forward(self, x: np.ndarray) -> np.ndarray:

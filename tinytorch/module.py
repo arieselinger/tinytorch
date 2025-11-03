@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Any, Sequence
 
-from tinytorch.base.parameter import Parameter
+from tinytorch.parameter import Parameter
 
 
 class Module(metaclass=ABCMeta):
@@ -14,8 +14,8 @@ class Module(metaclass=ABCMeta):
   @abstractmethod
   def parameters(self) -> Sequence[Parameter]: ...
 
-  # def __call__(self, *args: Any, **kwargs: Any) -> Any:
-  #   return self.forward(*args, **kwargs)
+  def __call__(self, *args: Any, **kwargs: Any) -> Any:
+    return self.forward(*args, **kwargs)
 
   def zero_grad(self) -> None:
     for param in self.parameters():
