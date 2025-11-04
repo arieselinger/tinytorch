@@ -1,12 +1,11 @@
 import numpy as np
 from typing import Sequence
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.module import Module
+from tinytorch.module import CriterionModule
 from tinytorch.parameter import Parameter
-from tinytorch.types import CriterionModuleProtocol
 
 
-class MSELoss(Module, CriterionModuleProtocol):
+class MSELoss(CriterionModule):
   _diff: np.ndarray | None
   _n: int | None
 

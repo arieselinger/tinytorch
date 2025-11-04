@@ -1,12 +1,11 @@
 import numpy as np
 from typing import Sequence
-from tinytorch.module import Module
+from tinytorch.module import SingleInputModule
 from tinytorch.parameter import Parameter
-from tinytorch.types import SingleInputModuleProtocol
 
 
-class Sequential(Module, SingleInputModuleProtocol):
-  def __init__(self, layers: Sequence[SingleInputModuleProtocol]) -> None:
+class Sequential(SingleInputModule):
+  def __init__(self, layers: Sequence[SingleInputModule]) -> None:
     self.layers = layers
 
   def forward(self, x: np.ndarray) -> np.ndarray:

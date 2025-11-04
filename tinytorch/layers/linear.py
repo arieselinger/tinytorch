@@ -1,12 +1,11 @@
 from typing import Sequence
 import numpy as np
 from tinytorch.error import ForwardNotCalledError
-from tinytorch.module import Module
+from tinytorch.module import SingleInputModule
 from tinytorch.parameter import Parameter, he_normal_params, zeros_params
-from tinytorch.types import SingleInputModuleProtocol
 
 
-class Linear(Module, SingleInputModuleProtocol):
+class Linear(SingleInputModule):
   def __init__(self, d_in: int, d_out: int) -> None:
     """
     Args:
