@@ -1,5 +1,5 @@
 import numpy as np
-from tinytorch.error import ForwardNotCalledError
+from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import SingleInputModule
 from tinytorch.parameter import Parameter
 from typing import Sequence
