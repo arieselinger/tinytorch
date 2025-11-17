@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Any, Generic, ParamSpec, Sequence
+from typing import Generic, ParamSpec, Sequence
 
 import numpy as np
 from tinytorch.parameter import Parameter
@@ -11,7 +11,7 @@ class Module(Generic[T], metaclass=ABCMeta):
   @abstractmethod
   def forward(self, *args: T.args, **kwargs: T.kwargs) -> np.ndarray: ...
 
-  def __call__(self, *args: T.args, **kwargs: T.kwargs) -> Any:
+  def __call__(self, *args: T.args, **kwargs: T.kwargs) -> np.ndarray:
     return self.forward(*args, **kwargs)
 
   @abstractmethod
