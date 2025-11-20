@@ -1,11 +1,11 @@
 from typing import Sequence
 import numpy as np
 from tinytorch.exceptions import ForwardNotCalledError
-from tinytorch.module import SingleInputModule
+from tinytorch.module import OneInputModule
 from tinytorch.parameter import Parameter
 
 
-class Softmax(SingleInputModule):
+class Softmax(OneInputModule):
   def forward(self, x: np.ndarray) -> np.ndarray:
     _s: np.ndarray | None
     """

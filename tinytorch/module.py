@@ -1,21 +1,23 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, ParamSpec, Sequence
+from typing import Generic, ParamSpec, Sequence, TypeVar
 
 import numpy as np
 from tinytorch.parameter import Parameter
 
-T = ParamSpec("T")
+In = ParamSpec("In")
+Out = TypeVar("Out")
+GradIn = TypeVar("GradIn")
 
 
-class Module(Generic[T], metaclass=ABCMeta):
+class _Module(Generic[In, Out, GradIn], metaclass=ABCMeta):
   @abstractmethod
-  def forward(self, *args: T.args, **kwargs: T.kwargs) -> np.ndarray: ...
+  def forward(self, *args: In.args, **kwargs: In.kwargs) -> Out: ...
 
-  def __call__(self, *args: T.args, **kwargs: T.kwargs) -> np.ndarray:
+  def __call__(self, *args: In.args, **kwargs: In.kwargs) -> Out:
     return self.forward(*args, **kwargs)
 
   @abstractmethod
-  def backward(self, grad_out: np.ndarray) -> np.ndarray: ...
+  def backward(self, grad_out: Out) -> GradIn: ...
 
   @abstractmethod
   def parameters(self) -> Sequence[Parameter]: ...
@@ -25,5 +27,7 @@ class Module(Generic[T], metaclass=ABCMeta):
       param.zero_grad()
 
 
-SingleInputModule = Module[[np.ndarray]]
-CriterionModule = Module[[np.ndarray, np.ndarray]]
+# Classes to inherit from
+OneInputModule = _Module[[np.ndarray], np.ndarray, np.ndarray]
+TwoInputModule = _Module[[np.ndarray, np.ndarray], np.ndarray, tuple[np.ndarray, np.ndarray]]
+CriterionModule = _Module[[np.ndarray, np.ndarray], np.ndarray, np.ndarray]
