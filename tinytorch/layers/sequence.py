@@ -22,5 +22,5 @@ class Sequential(OneInputModule):
   def parameters(self) -> Sequence[Parameter]:
     params: list[Parameter] = []
     for m in self.layers:
-      params += m.parameters()
+      params.extend(m.parameters())
     return params

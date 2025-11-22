@@ -19,7 +19,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 ### Layers
 
 - [x] `Linear`
-- [ ] `Dropout`
+- [x] `Dropout`
 - [ ] `LayerNorm`
 - [ ] Add (residual connections)
 
