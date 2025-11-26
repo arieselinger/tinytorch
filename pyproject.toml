@@ -45,4 +45,8 @@ unfixable = []
 combine-as-imports = false
 
 [dependency-groups]
-dev = ["pyright (>=1.1.406,<2.0.0)", "ruff (>=0.13.3,<0.14.0)"]
+dev = [
+  "pyright (>=1.1.406,<2.0.0)",
+  "ruff (>=0.13.3,<0.14.0)",
+  "pytest (>=9.0.1,<10.0.0)",
+]
