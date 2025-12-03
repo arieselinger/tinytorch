@@ -13,11 +13,15 @@ class Parameter:
     self.grad = np.zeros_like(self.data)
 
 
-def he_normal_params(*shape: int) -> Parameter:
+def create_he_normal_params(*shape: int) -> Parameter:
   d_in = shape[0]
   std = np.sqrt(2.0 / d_in)
   return Parameter(np.random.randn(*shape) * std)
 
 
-def zeros_params(*shape: int) -> Parameter:
+def create_zeros_params(*shape: int) -> Parameter:
   return Parameter(np.zeros(shape))
+
+
+def create_ones_params(*shape: int) -> Parameter:
+  return Parameter(np.ones(shape))

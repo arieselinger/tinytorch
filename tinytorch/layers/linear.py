@@ -2,7 +2,7 @@ from typing import Sequence
 import numpy as np
 from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import OneInputModule
-from tinytorch.parameter import Parameter, he_normal_params, zeros_params
+from tinytorch.parameter import Parameter, create_he_normal_params, create_zeros_params
 
 
 class Linear(OneInputModule):
@@ -18,8 +18,8 @@ class Linear(OneInputModule):
     """
 
     # Trainable weights
-    self.W = he_normal_params(d_in, d_out)  # He init: great for ReLU
-    self.b = zeros_params(d_out) if bias else None
+    self.W = create_he_normal_params(d_in, d_out)  # He init: great for ReLU
+    self.b = create_zeros_params(d_out) if bias else None
 
     # Cached for backward pass
     self._x: np.ndarray | None = None
