@@ -20,7 +20,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 
 - [x] `Linear`
 - [x] `Dropout`
-- [ ] `LayerNorm`
+- [x] `LayerNorm`
 - [ ] Add (residual connections)
 
 ### Attention / Transformers
@@ -73,22 +73,23 @@ optimizer = SGD(model.parameters(), learning_rate=0.01, weight_decay=0.001)
 
 
 # Load data
-
-x, y = load_your_batch_data()
+data = get_data()
 
 # Training loop
 for epoch in range(1000):
-    # Forward pass
-    y_pred = model(x)
-    loss = criterion(y_pred, y)
+    # Load batch
+    for x, y in load_batches(data):
+        # Forward pass
+        y_pred = model(x)
+        loss = criterion(y_pred, y)
 
-    # Backward pass
-    grad_loss = criterion.backward()
-    model.backward(grad_loss)
+        # Backward pass
+        grad_loss = criterion.backward()
+        model.backward(grad_loss)
 
-    # Update weights
-    optimizer.step()
-    model.zero_grad()
+        # Update weights
+        optimizer.step()
+        model.zero_grad()
 ```
 
 ## Quick Start

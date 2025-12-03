@@ -1,5 +1,6 @@
 import numpy as np
 from tinytorch.activations.relu import ReLU
+from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
 from tinytorch.layers.sequence import Sequential
 from tinytorch.criteria.mse import MSELoss
@@ -20,17 +21,30 @@ dropout_rate = 0.1
 
 # Define model
 context = TrainingContext()
-model = Sequential(
+block1 = Sequential(
   [
     Linear(d1, d2),
+    LayerNorm(d2),  # Pre-LN: normalize BEFORE non linearity (gpt2+ good practice)
     ReLU(),
-    Dropout(dropout_rate, context),
+    Dropout(dropout_rate, context),  # Dropout at the end to regularize the transformed features
+  ]
+)
+block2 = Sequential(
+  [
     Linear(d2, d3),
+    LayerNorm(d3),
     ReLU(),
     Dropout(dropout_rate, context),
+  ]
+)
+model = Sequential(
+  [
+    block1,
+    block2,
     Linear(d3, d4),
   ]
 )
+
 
 print("> Num parameters:", sum(p.data.size for p in model.parameters()))
 
