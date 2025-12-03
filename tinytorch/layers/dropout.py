@@ -32,7 +32,6 @@ class Dropout(OneInputModule):
 
     """
     if not self._context.is_training() or self._p == 0.0:
-      self._mask = None
       return x
 
     keep_probability = 1.0 - self._p
@@ -40,11 +39,11 @@ class Dropout(OneInputModule):
     return x * self._mask / keep_probability
 
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
-    if self._mask is None:
-      raise ForwardNotCalledError()
-
     if not self._context.is_training():
       raise RuntimeError("Backward should only be called on training mode")
+
+    if self._mask is None:
+      raise ForwardNotCalledError()
 
     keep_probability = 1.0 - self._p
     return grad_out * self._mask / keep_probability
