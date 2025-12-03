@@ -103,4 +103,10 @@ class Linear(OneInputModule):
     if self.b is not None:
       self.b.grad += grad_out_flatten.sum(axis=0)
 
+    # An other approach instead of flattening is using the Einstein notation
+    # to sum over all batches dimensions:
+    # self.W.grad += np.einsum('...i,...j=>ij', self._x, grad_out)
+    # self.b.grad += np.einsum('...j->j', grad_out)
+    # This might be much slower computationally.
+
     return grad_in
