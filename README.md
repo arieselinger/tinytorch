@@ -66,44 +66,49 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 ## Usage Example
 
 ```python
-import numpy as np
-
-from tinytorch.layers import Linear, Sequential
-from tinytorch.activations import ReLU, Softmax
-from tinytorch.criteria import MSELoss
+from tinytorch.activations.relu import ReLU
+from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
+from tinytorch.datasets import normalize_and_flatten
+from tinytorch.datasets.base import DataLoader
+from tinytorch.datasets.mnist import MNISTDataset
+from tinytorch.layers.layer_norm import LayerNorm
+from tinytorch.layers.linear import Linear
+from tinytorch.layers.sequence import Sequential
 from tinytorch.optimizers import SGD
 
 # Define model
-model = Sequential([
-    Linear(4, 10),
+model = Sequential(
+  [
+    Linear(784, 256),
+    LayerNorm(256),
     ReLU(),
-    Linear(10, 5),
-    Softmax(),
-])
-
-# Setup training
-criterion = MSELoss()
-optimizer = SGD(model.parameters(), learning_rate=0.01, weight_decay=0.001)
-
+    Linear(256, 10),
+  ]
+)
 
 # Load data
-data = get_data()
+dataset = MNISTDataset(train=True, transform=normalize_and_flatten)
+dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
+
+# Setup training
+criterion = SoftmaxCrossEntropyLoss()
+optimizer = SGD(model.parameters(), learning_rate=0.01, weight_decay=0.001)
 
 # Training loop
-for epoch in range(1000):
-    # Load batch
-    for x, y in load_batches(data):
-        # Forward pass
-        y_pred = model(x)
-        loss = criterion(y_pred, y)
+for epoch in range(10):
+  # Load batch
+  for x, targets in dataloader:
+    # Forward pass
+    logits = model(x)
+    loss = criterion(logits, targets)
 
-        # Backward pass
-        grad_loss = criterion.backward()
-        model.backward(grad_loss)
+    # Backward pass
+    grad_loss = criterion.backward()
+    model.backward(grad_loss)
 
-        # Update weights
-        optimizer.step()
-        model.zero_grad()
+    # Update weights
+    optimizer.step()
+    model.zero_grad()
 ```
 
 ## Quick Start
@@ -121,5 +126,4 @@ python scripts/linear_example.py
 python scripts/sequential_example.py
 python scripts/sgd_example.py
 python scripts/classifier_example.py     # MNIST: 98%+ accuracy
-python scripts/cifar10_classifier.py     # CIFAR-10: color images
 ```
