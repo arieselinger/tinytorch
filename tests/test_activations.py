@@ -5,6 +5,7 @@ from tests.check_gradients import compare_gradients
 from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
+from tinytorch.activations.gelu import GELU
 
 
 class TestReLU:
@@ -64,4 +65,26 @@ class TestSoftmax:
     """Softmax with large values (tests numerical stability with exp)."""
     module = Softmax()
     x = np.array([[-100.0, 0.0, 100.0], [50.0, -50.0, 0.0]])
+    assert compare_gradients(module, x)
+
+
+class TestGELU:
+  @pytest.mark.parametrize(
+    "shape",
+    [
+      (3, 5),  # 2D: (B, d)
+      (4, 6, 8),  # 3D: (B, T, d)
+      (2, 3, 4, 5),  # 4D: (B, H, W, d)
+    ],
+  )
+  def test_gradients_multidim(self, shape: tuple[int, ...]) -> None:
+    """GELU should work with arbitrary input dimensions."""
+    module = GELU()
+    x = np.random.randn(*shape)
+    assert compare_gradients(module, x)
+
+  def test_gradients_extreme_values(self) -> None:
+    """GELU with large positive/negative values."""
+    module = GELU()
+    x = np.array([[-5.0, -2.0], [0.0, 2.0], [5.0, 10.0]])
     assert compare_gradients(module, x)
