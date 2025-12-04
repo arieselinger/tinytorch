@@ -1,7 +1,7 @@
 import numpy as np
 
 from tinytorch.layers.linear import Linear
-from tinytorch.module import OneInputModule
+from tinytorch.module import OneInputModule, CriterionModule
 
 EPSILON = 1e-5
 TOLERANCE = 1e-4
@@ -44,6 +44,44 @@ def _compute_numerical_gradients(
   return grad_in
 
 
+def _compute_numerical_gradients_criterion(
+  criterion: CriterionModule,
+  logits: np.ndarray,
+  targets: np.ndarray,
+  arr: np.ndarray,
+) -> np.ndarray:
+  """
+  Estimate the numerical gradients of criterion(logits, targets) w.r.t. arr w central finite diff
+
+  Args:
+    criterion: Criterion module (loss function)
+    logits: Input logits
+    targets: Target values
+    arr: Array to compute gradients with respect to (should be logits)
+
+  Output:
+    Numerical gradients of loss w.r.t. arr
+  """
+  grad_in = np.zeros_like(arr)
+  it = np.nditer(arr, flags=["multi_index"], op_flags=[["readwrite"]])
+
+  while not it.finished:
+    idx = it.multi_index
+    original_value = arr[idx]
+
+    arr[idx] = original_value + EPSILON
+    loss_pos = criterion.forward(logits, targets)
+
+    arr[idx] = original_value - EPSILON
+    loss_neg = criterion.forward(logits, targets)
+
+    grad_in[idx] = (loss_pos - loss_neg) / (2 * EPSILON)
+    arr[idx] = original_value
+    it.iternext()
+
+  return grad_in
+
+
 def compare_gradients(
   module: OneInputModule,
   x: np.ndarray,
@@ -64,6 +102,34 @@ def compare_gradients(
       return False
 
   return True
+
+
+def compare_criterion_gradients(
+  criterion: CriterionModule,
+  logits: np.ndarray,
+  targets: np.ndarray,
+) -> bool:
+  """
+  Check gradients for a criterion module (loss function).
+
+  Args:
+    criterion: Criterion module to test
+    logits: Input logits
+    targets: Target values
+
+  Returns:
+    True if analytical gradients match numerical gradients
+  """
+  # Forward pass
+  criterion.forward(logits, targets)
+
+  # Backward pass (criterion returns gradient directly, grad_out defaults to 1.0)
+  grad_logits = criterion.backward(np.array(1.0))
+
+  # Numerical gradient
+  num_grad_logits = _compute_numerical_gradients_criterion(criterion, logits, targets, logits)
+
+  return np.allclose(grad_logits, num_grad_logits, atol=TOLERANCE)
 
 
 if __name__ == "__main__":
