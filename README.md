@@ -69,11 +69,11 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 from tinytorch.activations.relu import ReLU
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
 from tinytorch.datasets import normalize_and_flatten
-from tinytorch.datasets.base import DataLoader
+from tinytorch.datasets.dataloader import DataLoader
 from tinytorch.datasets.mnist import MNISTDataset
 from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
-from tinytorch.layers.sequence import Sequential
+from tinytorch.layers.sequential import Sequential
 from tinytorch.optimizers import SGD
 
 # Define model
