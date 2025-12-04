@@ -5,7 +5,7 @@ from tinytorch.criteria.mse import MSELoss
 from tinytorch.layers.dropout import Dropout
 from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
-from tinytorch.layers.sequence import Sequential
+from tinytorch.layers.sequential import Sequential
 from tinytorch.optimizers import SGD
 from tinytorch.training import TrainingContext
 
