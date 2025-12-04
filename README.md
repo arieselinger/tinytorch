@@ -49,6 +49,20 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 - [ ] Adam
 - [ ] AdamW
 
+### Datasets & DataLoaders
+
+- [x] Dataset (base class)
+- [x] DataLoader (batching, shuffling)
+- [x] MNISTDataset
+- [x] CIFAR10Dataset
+
+### Scripts / Examples
+
+- [x] Linear regression example
+- [x] Sequential model example
+- [x] SGD optimizer example
+- [x] Classifier example on MNIST dataset (98%+ accuracy)
+
 ## Usage Example
 
 ```python
@@ -106,4 +120,6 @@ Run examples:
 python scripts/linear_example.py
 python scripts/sequential_example.py
 python scripts/sgd_example.py
+python scripts/classifier_example.py     # MNIST: 98%+ accuracy
+python scripts/cifar10_classifier.py     # CIFAR-10: color images
 ```

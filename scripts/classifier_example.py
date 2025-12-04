@@ -1,10 +1,10 @@
-from typing import cast
-
 import numpy as np
 
 from tinytorch.activations.gelu import GELU
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
-from tinytorch.dataset import DataLoader, MNISTDataset
+from tinytorch.dataset import DataLoader
+from tinytorch.datasets import normalize_and_flatten
+from tinytorch.datasets.mnist import MNISTDataset
 from tinytorch.layers.dropout import Dropout
 from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
@@ -12,20 +12,24 @@ from tinytorch.layers.sequence import Sequential
 from tinytorch.optimizers import SGD
 from tinytorch.training import TrainingContext
 
-# Load MNIST dataset
-train = MNISTDataset(train=True, transform=lambda x: x.astype(np.float32).reshape(-1) / 255.0)
-test = MNISTDataset(train=False, transform=lambda x: x.astype(np.float32).reshape(-1) / 255.0)
-print("MNIST data loaded.")
-
 # Constants
 batch_size = 64
-num_epochs = 30
-d_in = train[0][0].shape[0]  # 28 * 28 = 784
+num_epochs = 2
 d_model = 256
-d_out = 10
 learning_rate = 1e-2
 weight_decay = 1e-4
 dropout_rate = 0.1
+
+# Load dataset
+train = MNISTDataset(train=True, transform=normalize_and_flatten)
+test = MNISTDataset(train=False, transform=normalize_and_flatten)
+train_dataloader = DataLoader(train, batch_size, shuffle=True)
+test_dataloader = DataLoader(test, batch_size=len(test), shuffle=False)
+print("MNIST data loaded.")
+
+d_in = train[0][0].shape[0]
+d_out = len(train.classes)
+print(f"Input dimension: {d_in}, Output classes: {d_out}")
 
 context = TrainingContext()
 model = Sequential(
@@ -44,13 +48,9 @@ model = Sequential(
     Linear(d_model, d_out),
   ]
 )
-print("Num parameters:", sum(p.data.size for p in model.parameters()))
-
 criterion = SoftmaxCrossEntropyLoss()
 optimizer = SGD(model.parameters(), learning_rate, weight_decay)
-
-train_dataloader = DataLoader(train, batch_size, shuffle=True)
-test_dataloader = DataLoader(test, batch_size=len(test), shuffle=False)
+print("Num parameters:", sum(p.data.size for p in model.parameters()))
 
 # Training loop
 print("Start training.")
@@ -58,21 +58,22 @@ context.train()
 
 for epoch in range(num_epochs):
   # Store metrics
-  losses: list[float] = []
-  accuracies: list[np.floating] = []
+  total_loss = 0.0
+  correct = 0
+  total = 0
 
   # Iterate over batches
   for x, target in train_dataloader:
     logits = model(x)
     loss = criterion(logits, target)
 
-    # Store batch loss
-    losses.append(loss.item())
+    # Accumulate loss (weighted by batch size because last batch may be smaller)
+    total_loss += loss.item() * len(target)
 
-    # Store batch accuracy
+    # Accumulate correct predictions
     preds = np.argmax(logits, axis=-1)
-    acc = cast(np.floating, np.mean(preds == target))
-    accuracies.append(acc)
+    correct += int((preds == target).sum())
+    total += len(target)
 
     grad_loss = criterion.backward()
     _ = model.backward(grad_loss)
@@ -80,20 +81,19 @@ for epoch in range(num_epochs):
     optimizer.step()
     model.zero_grad()
 
-  mean_loss = np.mean(losses)
-  mean_acc = np.mean(accuracies)
-  print(f"Epoch {epoch + 1}/{num_epochs} - mean_loss={mean_loss:.4f}, mean_acc={mean_acc:.4f}")
-
+  mean_loss = total_loss / total
+  accuracy = correct / total
+  print(f"Epoch {epoch + 1}/{num_epochs} - mean_loss={mean_loss:.4f}, acc={accuracy:.4f}")
 
 # Evaluation
+print("Start eval.")
 context.eval()
-print("> Start evaluation.")
 
 x_test, y_test = next(iter(test_dataloader))
 
 logits = model.forward(x_test)
 loss = criterion(logits, y_test)
 preds = np.argmax(logits, axis=-1)
-acc = cast(np.floating, np.mean(preds == y_test))
+accuracy = np.mean(preds == y_test, dtype=np.float32)
 
-print(f"Evaluation - loss={loss.item():.4f}, acc={acc:.4f}")
+print(f"Evaluation - loss={loss.item():.4f}, acc={accuracy.item():.4f}")
