@@ -6,32 +6,35 @@ from tinytorch.parameter import Parameter
 
 
 class Softmax(OneInputModule):
+  _s: np.ndarray | None
+
   def forward(self, x: np.ndarray) -> np.ndarray:
-    _s: np.ndarray | None
     """
     Compute softmax along last dimension
 
     Args
-      x: shape (B, ..., d_classes)
+      x: shape (..., d_classes)
 
     Output
-      softmax(x): shape (B, ..., d_classes)
+      softmax(x): shape (..., d_classes)
 
     Notes
       1. Softmax encodes relative positions since each vector can be shifted by a constant c:
       exp(x) / sum{exp(x)} = exp(x-c) / sum{exp(x-c)}
       2. For numerical stability, we compute c = max(x)
     """
-    x_max = np.max(x, axis=-1, keepdims=True)  # shape (B, ..., 1)
-    exp_x = np.exp(x - x_max)  # shape (B, ..., d_classes)
-    self._s = exp_x / np.sum(exp_x, axis=-1, keepdims=True)  # shape (B, ..., d_classes)
-    return self._s
+    x_max = np.max(x, axis=-1, keepdims=True)  # shape (..., 1)
+    exp_x = np.exp(x - x_max)  # shape (..., d_classes)
+    s = exp_x / np.sum(exp_x, axis=-1, keepdims=True)  # shape (..., d_classes)
+
+    self._s = s
+    return s
 
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
     """
-    Args
-      grad_out: shape (B, ..., d_classes)
-      self._s: shape (B, ..., d_classes)
+    Args:
+      grad_out: shape (..., d_classes)
+      self._s: shape (..., d_classes)
 
     ----
 
@@ -52,7 +55,7 @@ class Softmax(OneInputModule):
     """
     if self._s is None:
       raise ForwardNotCalledError()
-    dot = np.sum(self._s * grad_out, axis=-1, keepdims=True)  # shape (B, ..., 1)
+    dot = np.sum(self._s * grad_out, axis=-1, keepdims=True)  # shape (..., 1)
     return self._s * (grad_out - dot)
 
   def parameters(self) -> Sequence[Parameter]:

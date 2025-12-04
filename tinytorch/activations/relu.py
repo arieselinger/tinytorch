@@ -12,7 +12,7 @@ class ReLU(OneInputModule):
   def forward(self, x: np.ndarray) -> np.ndarray:
     """
     Args:
-      x: shape (B, *d)
+      x: shape (...)
     """
     self._x = x
     return x * (x > 0)
@@ -20,10 +20,10 @@ class ReLU(OneInputModule):
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
     """
     Args:
-      grad_out: shape (B, *d)
+      grad_out: shape (...)
 
     Output:
-      grad_in: shape (B, *d)
+      grad_in: shape (...)
     """
     if self._x is None:
       raise ForwardNotCalledError()

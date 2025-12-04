@@ -11,7 +11,7 @@ class Sigmoid(OneInputModule):
   def forward(self, x: np.ndarray) -> np.ndarray:
     """
     Args:
-      x: shape (B, d)
+      x: shape (...)
 
     Output:
       y = exp(x)/(1+exp(x)) = 1 / (1 + exp(-x))
@@ -22,10 +22,10 @@ class Sigmoid(OneInputModule):
   def backward(self, grad_out: np.ndarray) -> np.ndarray:
     """
     Args:
-      grad_out: shape (B, d)
+      grad_out: shape (...)
 
     Output:
-      grad_in: shape (B, d), grad_out * s'(x)
+      grad_in: shape (...), grad_out * s'(x)
     """
     if self._sigma is None:
       raise ForwardNotCalledError()

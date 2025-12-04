@@ -36,7 +36,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 - [x] ReLU
 - [x] Sigmoid
 - [x] Softmax
-- [ ] GELU
+- [x] GELU
 
 ### Loss Functions
 
