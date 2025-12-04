@@ -1,5 +1,7 @@
-import numpy as np
 from typing import Sequence
+
+import numpy as np
+
 from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import CriterionModule
 from tinytorch.parameter import Parameter

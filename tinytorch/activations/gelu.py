@@ -1,9 +1,10 @@
 from typing import Sequence
-from tinytorch.exceptions import ForwardNotCalledError
+
 import numpy as np
 
-from tinytorch.parameter import Parameter
+from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import OneInputModule
+from tinytorch.parameter import Parameter
 
 
 class GELU(OneInputModule):

@@ -1,16 +1,16 @@
 from typing import cast
+
 import numpy as np
 
+from tinytorch.activations.gelu import GELU
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
 from tinytorch.dataset import load_mnist
-from tinytorch.layers.linear import Linear
-from tinytorch.activations.gelu import GELU
-from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.dropout import Dropout
+from tinytorch.layers.layer_norm import LayerNorm
+from tinytorch.layers.linear import Linear
 from tinytorch.layers.sequence import Sequential
 from tinytorch.optimizers import SGD
 from tinytorch.training import TrainingContext
-
 
 # Load MNIST dataset
 dataset = load_mnist()

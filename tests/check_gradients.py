@@ -1,7 +1,7 @@
 import numpy as np
 
 from tinytorch.layers.linear import Linear
-from tinytorch.module import OneInputModule, CriterionModule
+from tinytorch.module import CriterionModule, OneInputModule
 
 EPSILON = 1e-5
 TOLERANCE = 1e-4

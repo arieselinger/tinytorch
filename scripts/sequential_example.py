@@ -1,10 +1,11 @@
 import numpy as np
+
 from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
+from tinytorch.criteria.mse import MSELoss
 from tinytorch.layers.linear import Linear
 from tinytorch.layers.sequence import Sequential
-from tinytorch.criteria.mse import MSELoss
 
 # Constants
 batch_size = 12

@@ -1,4 +1,5 @@
 from typing import Sequence
+
 from tinytorch.parameter import Parameter
 
 

@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, ParamSpec, Sequence, TypeVar
 
 import numpy as np
+
 from tinytorch.parameter import Parameter
 
 In = ParamSpec("In")

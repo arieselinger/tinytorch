@@ -1,7 +1,9 @@
 from typing import Sequence
+
 import numpy as np
-from tinytorch.parameter import Parameter
+
 from tinytorch.module import TwoInputModule
+from tinytorch.parameter import Parameter
 
 
 class Add(TwoInputModule):

@@ -1,8 +1,10 @@
 from typing import Sequence
+
 import numpy as np
-from tinytorch.parameter import Parameter
+
 from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import CriterionModule
+from tinytorch.parameter import Parameter
 
 
 class SoftmaxCrossEntropyLoss(CriterionModule):

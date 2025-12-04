@@ -1,4 +1,5 @@
 import numpy as np
+
 from tinytorch.layers.linear import Linear
 
 # Constants

@@ -1,5 +1,7 @@
-import numpy as np
 from typing import Sequence
+
+import numpy as np
+
 from tinytorch.module import OneInputModule
 from tinytorch.parameter import Parameter
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tests.check_gradients import compare_criterion_gradients, TOLERANCE
+from tests.check_gradients import TOLERANCE, compare_criterion_gradients
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
 
 

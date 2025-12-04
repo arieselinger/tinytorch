@@ -36,7 +36,7 @@ line-ending = "auto"
 docstring-code-format = true
 
 [tool.ruff.lint]
-select = ["E", "F", "N", "RUF"]
+select = ["E", "F", "I", "N", "RUF"]
 ignore = []
 fixable = ["ALL"]
 unfixable = []

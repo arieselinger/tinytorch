@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
-from tests.check_gradients import compare_gradients
 
+from tests.check_gradients import compare_gradients
+from tinytorch.activations.gelu import GELU
 from tinytorch.activations.relu import ReLU
 from tinytorch.activations.sigmoid import Sigmoid
 from tinytorch.activations.softmax import Softmax
-from tinytorch.activations.gelu import GELU
 
 
 class TestReLU:

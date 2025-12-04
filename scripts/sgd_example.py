@@ -1,11 +1,12 @@
 import numpy as np
+
 from tinytorch.activations.relu import ReLU
+from tinytorch.criteria.mse import MSELoss
+from tinytorch.layers.dropout import Dropout
 from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
 from tinytorch.layers.sequence import Sequential
-from tinytorch.criteria.mse import MSELoss
 from tinytorch.optimizers import SGD
-from tinytorch.layers.dropout import Dropout
 from tinytorch.training import TrainingContext
 
 # Constants

@@ -1,7 +1,8 @@
-from dataclasses import dataclass
 import gzip
 import urllib.request
+from dataclasses import dataclass
 from pathlib import Path
+
 import numpy as np
 
 

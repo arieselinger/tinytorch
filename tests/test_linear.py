@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 from tests.check_gradients import compare_gradients
-from tinytorch.layers.linear import Linear
 from tinytorch.exceptions import ForwardNotCalledError
+from tinytorch.layers.linear import Linear
 
 
 class TestLinearGradients:
