@@ -14,7 +14,7 @@ from tinytorch.training import TrainingContext
 
 # Constants
 batch_size = 64
-num_epochs = 2
+num_epochs = 30
 d_model = 256
 learning_rate = 1e-2
 weight_decay = 1e-4
