@@ -4,7 +4,7 @@ import numpy as np
 
 from tinytorch.activations.gelu import GELU
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
-from tinytorch.dataset import load_mnist
+from tinytorch.dataset import DataLoader, MNISTDataset
 from tinytorch.layers.dropout import Dropout
 from tinytorch.layers.layer_norm import LayerNorm
 from tinytorch.layers.linear import Linear
@@ -13,25 +13,14 @@ from tinytorch.optimizers import SGD
 from tinytorch.training import TrainingContext
 
 # Load MNIST dataset
-dataset = load_mnist()
+train = MNISTDataset(train=True, transform=lambda x: x.astype(np.float32).reshape(-1) / 255.0)
+test = MNISTDataset(train=False, transform=lambda x: x.astype(np.float32).reshape(-1) / 255.0)
 print("MNIST data loaded.")
-
-
-# Prepare data
-n_train = dataset.train_x.shape[0]
-x_train = dataset.train_x.astype(np.float32).reshape(n_train, -1) / 255.0
-y_train = dataset.train_y
-
-n_test = dataset.test_x.shape[0]
-x_test = dataset.test_x.astype(np.float32).reshape(n_test, -1) / 255.0
-y_test = dataset.test_y
-
-print("Data prepared.")
 
 # Constants
 batch_size = 64
 num_epochs = 30
-d_in = x_train.shape[1]  # 28 * 28 = 784
+d_in = train[0][0].shape[0]  # 28 * 28 = 784
 d_model = 256
 d_out = 10
 learning_rate = 1e-2
@@ -55,35 +44,25 @@ model = Sequential(
     Linear(d_model, d_out),
   ]
 )
+print("Num parameters:", sum(p.data.size for p in model.parameters()))
+
 criterion = SoftmaxCrossEntropyLoss()
 optimizer = SGD(model.parameters(), learning_rate, weight_decay)
 
-print("Num parameters:", sum(p.data.size for p in model.parameters()))
+train_dataloader = DataLoader(train, batch_size, shuffle=True)
+test_dataloader = DataLoader(test, batch_size=len(test), shuffle=False)
 
 # Training loop
 print("Start training.")
 context.train()
 
 for epoch in range(num_epochs):
-  # Shuffle training data
-  indices = np.random.permutation(n_train)
-  x_train_shuffled = x_train[indices]
-  y_train_shuffled = y_train[indices]
-
-  # Generate batches
-  num_batches = len(x_train) // batch_size
-
   # Store metrics
   losses: list[float] = []
   accuracies: list[np.floating] = []
 
-  for batch_idx in range(num_batches):
-    start_idx = batch_idx * batch_size
-    end_idx = start_idx + batch_size
-
-    x = x_train_shuffled[start_idx:end_idx]
-    target = y_train_shuffled[start_idx:end_idx]
-
+  # Iterate over batches
+  for x, target in train_dataloader:
     logits = model(x)
     loss = criterion(logits, target)
 
@@ -109,6 +88,8 @@ for epoch in range(num_epochs):
 # Evaluation
 context.eval()
 print("> Start evaluation.")
+
+x_test, y_test = next(iter(test_dataloader))
 
 logits = model.forward(x_test)
 loss = criterion(logits, y_test)
