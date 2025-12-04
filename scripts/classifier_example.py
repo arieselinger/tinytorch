@@ -2,8 +2,8 @@ import numpy as np
 
 from tinytorch.activations.gelu import GELU
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
-from tinytorch.dataset import DataLoader
 from tinytorch.datasets import normalize_and_flatten
+from tinytorch.datasets.base import DataLoader
 from tinytorch.datasets.mnist import MNISTDataset
 from tinytorch.layers.dropout import Dropout
 from tinytorch.layers.layer_norm import LayerNorm
