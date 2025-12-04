@@ -41,7 +41,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 ### Loss Functions
 
 - [x] MSELoss
-- [ ] SoftmaxCrossEntropyLoss
+- [x] SoftmaxCrossEntropyLoss
 
 ### Optimizers
 
