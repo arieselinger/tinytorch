@@ -25,7 +25,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 
 ### Attention / Transformers
 
-- [ ] Scaled Dot-Product Attention
+- [x] `ScaledDotProductAttention`
 - [ ] Multi-Head Attention
 - [ ] Self-Attention Block (pre-norm)
 - [ ] Feed-Forward Block (pre-norm)

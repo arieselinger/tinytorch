@@ -31,4 +31,7 @@ class _Module(Generic[In, Out, GradIn], metaclass=ABCMeta):
 # Classes to inherit from
 OneInputModule = _Module[[np.ndarray], np.ndarray, np.ndarray]
 TwoInputModule = _Module[[np.ndarray, np.ndarray], np.ndarray, tuple[np.ndarray, np.ndarray]]
+ThreeInputModule = _Module[
+  [np.ndarray, np.ndarray, np.ndarray], np.ndarray, tuple[np.ndarray, np.ndarray, np.ndarray]
+]
 CriterionModule = _Module[[np.ndarray, np.ndarray], np.ndarray, np.ndarray]
