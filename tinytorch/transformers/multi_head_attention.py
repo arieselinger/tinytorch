@@ -5,6 +5,7 @@ import numpy as np
 from tinytorch.exceptions import ForwardNotCalledError
 from tinytorch.module import OneInputModule
 from tinytorch.parameter import Parameter, create_he_normal_params
+from tinytorch.transformers.kv_cache import KVCache
 from tinytorch.transformers.scaled_dot_product_attention import ScaledDotProductAttention
 
 
@@ -34,7 +35,7 @@ class MultiHeadAttention(OneInputModule):
       *self._attention_layer.parameters(),
     ]
 
-  def forward(self, x: np.ndarray) -> np.ndarray:
+  def forward(self, x: np.ndarray, cache: KVCache | None = None) -> np.ndarray:
     """
     Args:
       x: shape (B, T_q, d_model) (T_q = T if no kv-cache)
@@ -44,9 +45,12 @@ class MultiHeadAttention(OneInputModule):
 
     Q = x @ self._Wq.data  # (B, Tq, d_model)
 
-    # TODO: ADD KV CACHE - Augment K and V with cached T - Tq rows
-    K = x @ self._Wk.data  # (B, Tq, d_model) after KV cache it changes to (B, T, d_model)
-    V = x @ self._Wv.data  # (B, Tq, d_model) after KV cache it changes to (B, T, d_model)
+    # Compute keys and values for new provided tokens (Tq)
+    K_new = x @ self._Wk.data  # (B, Tq, d_model)
+    V_new = x @ self._Wv.data  # (B, Tq, d_model)
+
+    # Get KV from cache if provided
+    K, V = cache.append(self, K_new, V_new) if cache else (K_new, V_new)  # (B, T, d_model)
 
     # Shapes
     B, Tq, _ = Q.shape  # Tq is number of new queries (for training Tq = T)
