@@ -37,7 +37,7 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "RUF"]
-ignore = []
+ignore = ["N806"]                    # Allow single-letter uppercase variable names 
 fixable = ["ALL"]
 unfixable = []
 

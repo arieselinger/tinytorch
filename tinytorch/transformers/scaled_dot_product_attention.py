@@ -47,11 +47,11 @@ class ScaledDotProductAttention(ThreeInputModule):
     return output
 
   def backward(self, grad_out: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    g, grad_V = self._matmul2.backward(grad_out)  # noqa: N806
+    g, grad_V = self._matmul2.backward(grad_out)
     g = self._softmax.backward(g)
     g = g * self._scale
-    grad_Q, grad_K_transpose = self._matmul1.backward(g)  # noqa: N806
-    grad_K = grad_K_transpose.swapaxes(-1, -2)  # noqa: N806
+    grad_Q, grad_K_transpose = self._matmul1.backward(g)
+    grad_K = grad_K_transpose.swapaxes(-1, -2)
     return grad_Q, grad_K, grad_V
 
   def parameters(self) -> Sequence[Parameter]:
