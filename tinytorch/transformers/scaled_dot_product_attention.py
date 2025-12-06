@@ -29,11 +29,11 @@ class ScaledDotProductAttention(ThreeInputModule):
 
   def forward(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray) -> np.ndarray:  # noqa: N803
     num_queries = Q.shape[-2]
-    num_keys = K.shape[-2]
+    seq_len = K.shape[-2]
 
     mask = None
     if self._causal_mask and num_queries >= 1:
-      mask = np.triu(-np.inf * np.ones((num_queries, num_keys)), k=num_keys - num_queries + 1)
+      mask = np.triu(-np.inf * np.ones((num_queries, seq_len)), k=seq_len - num_queries + 1)
 
     scale = 1 / np.sqrt(K.shape[-1])
     self._scale: np.floating = scale
@@ -41,7 +41,7 @@ class ScaledDotProductAttention(ThreeInputModule):
     scores = self._matmul1(Q, K.swapaxes(-1, -2))
     scores = scores * scale
     if mask is not None:
-      scores = scores + mask
+      scores += mask
     attention = self._softmax(scores)
     output = self._matmul2(attention, V)
     return output
