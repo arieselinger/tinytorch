@@ -1,10 +1,37 @@
+from typing import Callable, Sequence
+
 import numpy as np
 
 from tinytorch.layers.linear import Linear
-from tinytorch.module import CriterionModule, OneInputModule
+from tinytorch.module import CriterionModule, OneInputModule, ThreeInputModule
 
 EPSILON = 1e-5
 TOLERANCE = 1e-4
+
+
+def _finite_differences_sum(
+  forward_fn: Callable[[], np.ndarray], arrays: Sequence[np.ndarray]
+) -> list[np.ndarray]:
+  """Central finite differences of sum(forward_fn()) for each array in `arrays`."""
+  grads: list[np.ndarray] = []
+  for arr in arrays:
+    grad = np.zeros_like(arr)
+    it = np.nditer(arr, flags=["multi_index"], op_flags=[["readwrite"]])
+    while not it.finished:
+      idx = it.multi_index
+      original_value = arr[idx]
+
+      arr[idx] = original_value + EPSILON
+      loss_pos = np.asarray(forward_fn()).sum()
+
+      arr[idx] = original_value - EPSILON
+      loss_neg = np.asarray(forward_fn()).sum()
+
+      grad[idx] = (loss_pos - loss_neg) / (2 * EPSILON)
+      arr[idx] = original_value
+      it.iternext()
+    grads.append(grad)
+  return grads
 
 
 def _compute_numerical_gradients(
@@ -23,63 +50,7 @@ def _compute_numerical_gradients(
   Output:
     Numerical gradients of loss = sum(module.forward(x)) w.r.t. arr: or d(1^T * module(x)) / d_arr
   """
-
-  grad_in = np.zeros_like(arr)
-  it = np.nditer(arr, flags=["multi_index"], op_flags=[["readwrite"]])
-
-  while not it.finished:
-    idx = it.multi_index
-    original_value = arr[idx]
-
-    arr[idx] = original_value + EPSILON
-    loss_pos = module.forward(x).sum()
-
-    arr[idx] = original_value - EPSILON
-    loss_neg = module.forward(x).sum()
-
-    grad_in[idx] = (loss_pos - loss_neg) / (2 * EPSILON)
-    arr[idx] = original_value
-    it.iternext()
-
-  return grad_in
-
-
-def _compute_numerical_gradients_criterion(
-  criterion: CriterionModule,
-  logits: np.ndarray,
-  targets: np.ndarray,
-  arr: np.ndarray,
-) -> np.ndarray:
-  """
-  Estimate the numerical gradients of criterion(logits, targets) w.r.t. arr w central finite diff
-
-  Args:
-    criterion: Criterion module (loss function)
-    logits: Input logits
-    targets: Target values
-    arr: Array to compute gradients with respect to (should be logits)
-
-  Output:
-    Numerical gradients of loss w.r.t. arr
-  """
-  grad_in = np.zeros_like(arr)
-  it = np.nditer(arr, flags=["multi_index"], op_flags=[["readwrite"]])
-
-  while not it.finished:
-    idx = it.multi_index
-    original_value = arr[idx]
-
-    arr[idx] = original_value + EPSILON
-    loss_pos = criterion.forward(logits, targets)
-
-    arr[idx] = original_value - EPSILON
-    loss_neg = criterion.forward(logits, targets)
-
-    grad_in[idx] = (loss_pos - loss_neg) / (2 * EPSILON)
-    arr[idx] = original_value
-    it.iternext()
-
-  return grad_in
+  return _finite_differences_sum(lambda: module.forward(x), [arr])[0]
 
 
 def compare_gradients(
@@ -102,6 +73,29 @@ def compare_gradients(
       return False
 
   return True
+
+
+def compare_three_input_gradients(
+  module: ThreeInputModule,
+  q: np.ndarray,
+  k: np.ndarray,
+  v: np.ndarray,
+) -> bool:
+  """Check gradients for modules taking three ndarray inputs (e.g., attention)."""
+  out = module.forward(q, k, v)
+  grad_out = np.ones_like(out)
+
+  grad_q, grad_k, grad_v = module.backward(grad_out)
+
+  num_grad_q, num_grad_k, num_grad_v = _finite_differences_sum(
+    lambda: module.forward(q, k, v), [q, k, v]
+  )
+
+  return (
+    np.allclose(grad_q, num_grad_q, atol=TOLERANCE)
+    and np.allclose(grad_k, num_grad_k, atol=TOLERANCE)
+    and np.allclose(grad_v, num_grad_v, atol=TOLERANCE)
+  )
 
 
 def compare_criterion_gradients(
@@ -127,7 +121,7 @@ def compare_criterion_gradients(
   grad_logits = criterion.backward(np.array(1.0))
 
   # Numerical gradient
-  num_grad_logits = _compute_numerical_gradients_criterion(criterion, logits, targets, logits)
+  num_grad_logits = _finite_differences_sum(lambda: criterion.forward(logits, targets), [logits])[0]
 
   return np.allclose(grad_logits, num_grad_logits, atol=TOLERANCE)
 
