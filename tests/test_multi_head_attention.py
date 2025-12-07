@@ -6,20 +6,25 @@ from tinytorch.transformers.multi_head_attention import MultiHeadAttention
 
 
 @pytest.mark.parametrize(
-  "num_heads,d_model,b,t",
+  "num_heads,d_model,shape",
   [
-    (1, 16, 1, 1),
-    (2, 64, 2, 5),
-    (4, 64, 3, 10),
-    (8, 256, 2, 20),
+    (1, 8, (1, 2, 8)),  # single head
+    (2, 8, (2, 3, 8)),  # batched 3D
+    (2, 8, (3, 8)),  # 2D no batch
+    (2, 8, (2, 2, 3, 8)),  # 4D extra dims
+    (8, 8, (1, 2, 8)),  # many heads (num_heads = d_model)
   ],
 )
-def test_output_shape(num_heads: int, d_model: int, b: int, t: int) -> None:
-  """Output shape matches input shape."""
+def test_output_shape(num_heads: int, d_model: int, shape: tuple[int, ...]) -> None:
+  """Output shape matches input shape for various dimensions."""
   mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model)
-  x = np.random.randn(b, t, d_model)
+  x = np.random.randn(*shape)
   output = mha.forward(x)
-  assert output.shape == x.shape
+  assert output.shape == shape
+
+  grad_out = np.random.randn(*shape)
+  grad_in = mha.backward(grad_out)
+  assert grad_in.shape == shape
 
 
 def test_invalid_d_model() -> None:
@@ -29,38 +34,14 @@ def test_invalid_d_model() -> None:
 
 
 @pytest.mark.parametrize(
-  "num_heads,d_model,b,t",
+  "num_heads,d_model,shape",
   [
-    (2, 32, 1, 2),
-    (4, 64, 2, 3),
+    (2, 8, (1, 2, 8)),  # 3D batched
+    (2, 8, (3, 8)),  # 2D no batch
   ],
 )
-def test_gradients(num_heads: int, d_model: int, b: int, t: int) -> None:
+def test_gradients(num_heads: int, d_model: int, shape: tuple[int, ...]) -> None:
   """Gradients are numerically correct."""
   mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, causal_mask=False)
-  x = np.random.randn(b, t, d_model)
+  x = np.random.randn(*shape)
   assert compare_gradients(mha, x)
-
-
-def test_single_head() -> None:
-  """Single head (num_heads=1) should work correctly."""
-  mha = MultiHeadAttention(num_heads=1, d_model=32, causal_mask=True)
-  x = np.random.randn(2, 5, 32)
-  output = mha.forward(x)
-  assert output.shape == x.shape
-
-  grad_out = np.random.randn(2, 5, 32)
-  grad_in = mha.backward(grad_out)
-  assert grad_in.shape == x.shape
-
-
-def test_many_heads() -> None:
-  """Many heads (num_heads = d_model) should work correctly."""
-  mha = MultiHeadAttention(num_heads=64, d_model=64, causal_mask=False)
-  x = np.random.randn(1, 3, 64)
-  output = mha.forward(x)
-  assert output.shape == x.shape
-
-  grad_out = np.random.randn(1, 3, 64)
-  grad_in = mha.backward(grad_out)
-  assert grad_in.shape == x.shape
