@@ -8,12 +8,20 @@ from tinytorch.parameter import Parameter
 
 
 class SoftmaxCrossEntropyLoss(CriterionModule):
-  _log_probs: np.ndarray | None
-  _shape: tuple[int, ...] | None
-  _num_points: int | None
-  _coordinates: tuple[np.ndarray[tuple[int]], np.ndarray[tuple[int]]] | None
+  def __init__(self) -> None:
+    self._log_probs: np.ndarray | None = None
+    self._shape: tuple[int, ...] | None = None
+    self._num_points: int | None = None
+    self._coordinates: tuple[np.ndarray, np.ndarray] | None = None
+    self._flatten_shape: tuple[int, int] | None = None
+    self._keep_index_flat: np.ndarray | None = None
 
-  def forward(self, logits: np.ndarray, targets: np.ndarray) -> np.ndarray:
+  def forward(
+    self,
+    logits: np.ndarray,
+    targets: np.ndarray,
+    ignore_index: np.ndarray | None = None,
+  ) -> np.ndarray:
     """Softmax cross-entropy: L = -log(softmax(logits)[target])
     1. For each position:
       * Softmax
@@ -23,15 +31,27 @@ class SoftmaxCrossEntropyLoss(CriterionModule):
     Args:
       logits: shape (..., n_classes)
       targets: shape (..., )
+      ignore_index: positions to ignore in the loss and gradient (optional): shape (..., )
 
     Output:
       loss: mean negative log-likelihood
     """
 
+    # Store this to reshape at the end of backward
     self._shape = logits.shape
 
-    logits_flat = logits.reshape(-1, logits.shape[-1])
-    targets_flat = targets.reshape(-1)
+    # Now for now on we only work with flattened versions of shape (N, n_classes)
+    logits_flat = logits.reshape(-1, logits.shape[-1])  # shape (N, n_classes)
+    targets_flat = targets.reshape(-1)  # shape (N, )
+    self._flatten_shape = logits_flat.shape
+
+    # Keep points that are not ignored
+    if ignore_index is not None:
+      keep_index_flat = ~ignore_index.reshape(-1).astype(bool)  # shape (N, )
+      self._keep_index_flat = keep_index_flat
+      logits_flat = logits_flat[keep_index_flat, :]
+      targets_flat = targets_flat[keep_index_flat]
+
     num_points = targets_flat.shape[0]
     self._num_points = num_points
 
@@ -61,6 +81,7 @@ class SoftmaxCrossEntropyLoss(CriterionModule):
       or self._shape is None
       or self._coordinates is None
       or self._num_points is None
+      or self._flatten_shape is None
     ):
       raise ForwardNotCalledError()
 
@@ -73,8 +94,16 @@ class SoftmaxCrossEntropyLoss(CriterionModule):
 
     # Gradient: (softmax - one_hot) / num_points
     # Because of the mean reduction, each position contributes to 1/N to grdient)
-    grad_in = grad_out * ((softmax - one_hot) / self._num_points)
-    return grad_in.reshape(*self._shape)
+
+    grad_in_flatten = grad_out * ((softmax - one_hot) / self._num_points)
+    if self._keep_index_flat is not None:
+      grad_in = np.zeros(self._flatten_shape)
+      grad_in[self._keep_index_flat] = grad_in_flatten
+    else:
+      grad_in = grad_in_flatten
+    grad_in = grad_in.reshape(*self._shape)
+
+    return grad_in
 
   def parameters(self) -> Sequence[Parameter]:
     return []
