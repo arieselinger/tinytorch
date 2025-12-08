@@ -10,13 +10,7 @@ from tinytorch.transformers.scaled_dot_product_attention import ScaledDotProduct
 
 
 class MultiHeadAttention(OneInputModule):
-  def __init__(
-    self,
-    num_heads: int,
-    d_model: int,
-    is_causal: bool = True,
-    key_padding_mask: np.ndarray | None = None,
-  ) -> None:
+  def __init__(self, num_heads: int, d_model: int, is_causal: bool = True) -> None:
     """
     Args:
       num_heads: number of attention heads
@@ -28,7 +22,6 @@ class MultiHeadAttention(OneInputModule):
     """
     self._num_heads = num_heads
     self._d_model = d_model
-    self._key_padding_mask = key_padding_mask
 
     if d_model % num_heads != 0:
       raise ValueError("d_model should be a multiple of num_heads")
@@ -51,7 +44,9 @@ class MultiHeadAttention(OneInputModule):
       *self._attention_layer.parameters(),
     ]
 
-  def forward(self, x: np.ndarray, cache: KVCache | None = None) -> np.ndarray:
+  def forward(
+    self, x: np.ndarray, cache: KVCache | None = None, key_padding_mask: np.ndarray | None = None
+  ) -> np.ndarray:
     """
     Args:
       x:  shape (..., Tq, d_model) (Tq = T if no kv-cache)
@@ -66,8 +61,8 @@ class MultiHeadAttention(OneInputModule):
     V_new = x @ self._Wv.data  # (..., Tq, d_model)
 
     # Mask padding keys if provided
-    if self._key_padding_mask is not None:
-      mask = self._key_padding_mask  # (..., Tq)
+    if key_padding_mask is not None:
+      mask = key_padding_mask  # (..., Tq)
       mask = np.expand_dims(mask, axis=-1)  # (..., Tq, 1)
       K_new = K_new + (1 - mask) * -np.inf  # (..., Tq, d_model)
 
