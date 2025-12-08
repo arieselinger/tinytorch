@@ -28,6 +28,7 @@ Every layer, gradient, and transformation is written manually: no autograd, no h
 - [x] `ScaledDotProductAttention`
 - [x] `MultiHeadAttention`
   - [x] `KVCache` support
+- [x] Embedding Layer
 - [ ] Self-Attention Block (pre-norm)
 - [ ] Feed-Forward Block (pre-norm)
 - [ ] Transformer Encoder Block

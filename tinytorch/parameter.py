@@ -19,6 +19,10 @@ def create_he_normal_params(*shape: int) -> Parameter:
   return Parameter(np.random.randn(*shape) * std)
 
 
+def create_normal_params(*shape: int, mean: float = 0.0, std: float = 0.01) -> Parameter:
+  return Parameter(np.random.randn(*shape) * std + mean)
+
+
 def create_zeros_params(*shape: int) -> Parameter:
   return Parameter(np.zeros(shape))
 

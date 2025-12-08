@@ -35,3 +35,4 @@ ThreeInputModule = _Module[
   [np.ndarray, np.ndarray, np.ndarray], np.ndarray, tuple[np.ndarray, np.ndarray, np.ndarray]
 ]
 CriterionModule = _Module[[np.ndarray, np.ndarray], np.ndarray, np.ndarray]
+OneInputModuleNoGrad = _Module[[np.ndarray], np.ndarray, None]
