@@ -42,6 +42,6 @@ def test_invalid_d_model() -> None:
 )
 def test_gradients(num_heads: int, d_model: int, shape: tuple[int, ...]) -> None:
   """Gradients are numerically correct."""
-  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, causal_mask=False)
+  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, is_causal=False)
   x = np.random.randn(*shape)
   assert compare_gradients(mha, x)

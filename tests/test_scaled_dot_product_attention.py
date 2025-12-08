@@ -16,7 +16,7 @@ from tinytorch.transformers.scaled_dot_product_attention import ScaledDotProduct
 )
 def test_square_attention_shape(seq_len: int, d_k: int, d_v: int) -> None:
   """Output has correct shape for square attention (num_queries=num_queries=seq_len)."""
-  module = ScaledDotProductAttention(causal_mask=True)
+  module = ScaledDotProductAttention(is_causal=True)
 
   q = np.random.randn(1, seq_len, d_k)
   k = np.random.randn(1, seq_len, d_k)
@@ -41,7 +41,7 @@ def test_inference_shape(
   batch_size: int, num_queries: int, seq_len: int, d_k: int, d_v: int
 ) -> None:
   """Output has correct shape for non-square attention (num_queries<num_keys, KV cache)."""
-  module = ScaledDotProductAttention(causal_mask=True)
+  module = ScaledDotProductAttention(is_causal=True)
 
   q = np.random.randn(batch_size, num_queries, d_k)
   k = np.random.randn(batch_size, seq_len, d_k)
@@ -53,10 +53,10 @@ def test_inference_shape(
   assert out.shape == (batch_size, num_queries, d_v)
 
 
-def test_causal_mask_affects_output() -> None:
+def test_is_causal_affects_output() -> None:
   """Causal mask produces different output than non-causal (early positions see fewer keys)."""
-  module_causal = ScaledDotProductAttention(causal_mask=True)
-  module_no_causal = ScaledDotProductAttention(causal_mask=False)
+  module_causal = ScaledDotProductAttention(is_causal=True)
+  module_no_causal = ScaledDotProductAttention(is_causal=False)
 
   rng = np.random.default_rng(123)
   q = rng.standard_normal((1, 3, 2))
@@ -72,7 +72,7 @@ def test_causal_mask_affects_output() -> None:
 
 def test_attention_weights_sum_values() -> None:
   """Output is weighted sum of values (with identical keys, weights are uniform)."""
-  module = ScaledDotProductAttention(causal_mask=False)
+  module = ScaledDotProductAttention(is_causal=False)
 
   q = np.array([[[1.0, 0.0]]])  # shape (1, 1, 2)
   k = np.array([[[1.0, 0.0], [1.0, 0.0]]])  # shape (1, 2, 2) - identical keys
@@ -99,7 +99,7 @@ def test_attention_weights_sum_values() -> None:
 )
 def test_gradients_square_causal(seq_len: int, d_k: int) -> None:
   """Gradients correct for square attention with causal masking."""
-  module = ScaledDotProductAttention(causal_mask=True)
+  module = ScaledDotProductAttention(is_causal=True)
 
   rng = np.random.default_rng(42)
   q = rng.standard_normal((1, seq_len, d_k))
@@ -119,7 +119,7 @@ def test_gradients_square_causal(seq_len: int, d_k: int) -> None:
 )
 def test_gradients_inference_causal(num_queries: int, seq_len: int, d_k: int) -> None:
   """Gradients correct for inference scenario (single query, causal mask)."""
-  module = ScaledDotProductAttention(causal_mask=True)
+  module = ScaledDotProductAttention(is_causal=True)
 
   rng = np.random.default_rng(42)
   q = rng.standard_normal((1, num_queries, d_k))
@@ -139,7 +139,7 @@ def test_gradients_inference_causal(num_queries: int, seq_len: int, d_k: int) ->
 )
 def test_gradients_square_no_causal(seq_len: int, d_k: int) -> None:
   """Gradients correct for square attention without causal masking."""
-  module = ScaledDotProductAttention(causal_mask=False)
+  module = ScaledDotProductAttention(is_causal=False)
 
   rng = np.random.default_rng(42)
   q = rng.standard_normal((1, seq_len, d_k))

@@ -9,39 +9,51 @@ from tinytorch.parameter import Parameter
 
 
 class ScaledDotProductAttention(ThreeInputModule):
-  def __init__(self, causal_mask: bool) -> None:
+  def __init__(self, is_causal: bool) -> None:
     """
     ScaledDotProductAttention
 
     Args:
-      causal_mask: if true, apply causal mask so that each query can only attend its previous keys.
-                   The mask aligns to the bottom-right, so the last query attends to all keys,
-                   second-to-last attends to all but the last key, etc.
-                    [[0 0 -inf -inf -inf]
-                     [0 0    0 -inf -inf]
-                     [0 0    0    0 -inf] <- second to last query
-                     [0 0    0    0   0]] <- last query
+      is_causal: Whether a causal mask should be applied.
+                 Causal mask is applied to  attention scores before softmax so that each query can
+                 only attend keys from previous time positions.
+                 The mask aligns to the bottom-right, so the last query attends
+                 to all keys, second-to-last attends to all but the last key, etc.
+                 [[0 0 -inf -inf -inf]
+                  [0 0    0 -inf -inf]
+                  [0 0    0    0 -inf] <- second to last query
+                  [0 0    0    0   0]] <- last query
+                Note: padding mask should be applied outside to this module to padding keys.
     """
     self._matmul1 = MatMul()
     self._softmax = Softmax()
     self._matmul2 = MatMul()
-    self._causal_mask = causal_mask
+    self._is_causal = is_causal
 
   def forward(self, Q: np.ndarray, K: np.ndarray, V: np.ndarray) -> np.ndarray:  # noqa: N803
-    num_queries = Q.shape[-2]
-    seq_len = K.shape[-2]
+    """
+    Compute: softmax(Q@K^T / sqrt(d_k))@V
 
-    mask = None
-    if self._causal_mask and num_queries >= 1:
-      mask = np.triu(-np.inf * np.ones((num_queries, seq_len)), k=seq_len - num_queries + 1)
+    Args:
+      Q: Queries shape (..., Tq, d_k)
+      K: Keys shape (..., T, d_k)
+      V: Values shape (..., T, d_v)
+    """
 
-    scale = 1 / np.sqrt(K.shape[-1])
+    Tq = Q.shape[-2]  # num queries
+    *_, T, d_k = K.shape  # seq len (num keys/values)
+
+    causal_mask = None
+    if self._is_causal and Tq >= 1:
+      causal_mask = np.triu(-np.inf * np.ones((Tq, T)), k=T - Tq + 1)
+
+    scale = 1 / np.sqrt(d_k)
     self._scale: np.floating = scale
 
     scores = self._matmul1(Q, K.swapaxes(-1, -2))
     scores = scores * scale
-    if mask is not None:
-      scores += mask
+    if causal_mask is not None:
+      scores += causal_mask
     attention = self._softmax(scores)
     output = self._matmul2(attention, V)
     return output

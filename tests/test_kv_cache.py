@@ -12,7 +12,7 @@ def test_kv_cache_single_step():
 
   B, T, d_model = 2, 5, 64
   num_heads = 4
-  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, causal_mask=True)
+  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, is_causal=True)
   cache = KVCache()
 
   # Full sequence forward with cache
@@ -42,7 +42,7 @@ def test_kv_cache_multiple_steps():
 
   B, T, d_model = 2, 4, 64
   num_heads = 4
-  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, causal_mask=True)
+  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, is_causal=True)
   cache = KVCache()
 
   # Initial sequence

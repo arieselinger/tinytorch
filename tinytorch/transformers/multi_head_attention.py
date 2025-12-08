@@ -10,9 +10,25 @@ from tinytorch.transformers.scaled_dot_product_attention import ScaledDotProduct
 
 
 class MultiHeadAttention(OneInputModule):
-  def __init__(self, num_heads: int, d_model: int, causal_mask: bool = True):
+  def __init__(
+    self,
+    num_heads: int,
+    d_model: int,
+    is_causal: bool = True,
+    key_padding_mask: np.ndarray | None = None,
+  ) -> None:
+    """
+    Args:
+      num_heads: number of attention heads
+      d_model: model dimension
+      is_causal: whether to apply causal masking in the attention scores
+      key_padding_mask: mask to ignore certain keys (optional)
+                        shape (..., Tq) instead of (..., T) since the cached keys are already
+                        stored after masking
+    """
     self._num_heads = num_heads
     self._d_model = d_model
+    self._key_padding_mask = key_padding_mask
 
     if d_model % num_heads != 0:
       raise ValueError("d_model should be a multiple of num_heads")
@@ -22,7 +38,7 @@ class MultiHeadAttention(OneInputModule):
     self._Wv = create_he_normal_params(d_model, d_model)
     self._Wo = create_he_normal_params(d_model, d_model)
 
-    self._attention_layer = ScaledDotProductAttention(causal_mask)
+    self._attention_layer = ScaledDotProductAttention(is_causal)
 
     self._x: np.ndarray | None = None
 
@@ -48,6 +64,12 @@ class MultiHeadAttention(OneInputModule):
     # Compute keys and values for new provided tokens (Tq)
     K_new = x @ self._Wk.data  # (..., Tq, d_model)
     V_new = x @ self._Wv.data  # (..., Tq, d_model)
+
+    # Mask padding keys if provided
+    if self._key_padding_mask is not None:
+      mask = self._key_padding_mask  # (..., Tq)
+      mask = np.expand_dims(mask, axis=-1)  # (..., Tq, 1)
+      K_new = K_new + (1 - mask) * -np.inf  # (..., Tq, d_model)
 
     # Get KV from cache if provided
     K, V = cache.append(self, K_new, V_new) if cache else (K_new, V_new)  # (..., T, d_model)
