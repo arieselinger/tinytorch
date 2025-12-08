@@ -1,4 +1,4 @@
-from typing import Callable, Sequence
+from typing import Any, Callable, Sequence
 
 import numpy as np
 
@@ -102,6 +102,7 @@ def compare_criterion_gradients(
   criterion: CriterionModule,
   logits: np.ndarray,
   targets: np.ndarray,
+  **forward_kwargs: Any,
 ) -> bool:
   """
   Check gradients for a criterion module (loss function).
@@ -110,18 +111,21 @@ def compare_criterion_gradients(
     criterion: Criterion module to test
     logits: Input logits
     targets: Target values
+    **forward_kwargs: Additional keyword arguments passed to forward
 
   Returns:
     True if analytical gradients match numerical gradients
   """
   # Forward pass
-  criterion.forward(logits, targets)
+  criterion.forward(logits, targets, **forward_kwargs)
 
   # Backward pass (criterion returns gradient directly, grad_out defaults to 1.0)
   grad_logits = criterion.backward(np.array(1.0))
 
   # Numerical gradient
-  num_grad_logits = _finite_differences_sum(lambda: criterion.forward(logits, targets), [logits])[0]
+  num_grad_logits = _finite_differences_sum(
+    lambda: criterion.forward(logits, targets, **forward_kwargs), [logits]
+  )[0]
 
   return np.allclose(grad_logits, num_grad_logits, atol=TOLERANCE)
 
