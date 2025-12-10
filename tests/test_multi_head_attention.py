@@ -17,7 +17,7 @@ from tinytorch.transformers.multi_head_attention import MultiHeadAttention
 )
 def test_output_shape(num_heads: int, d_model: int, shape: tuple[int, ...]) -> None:
   """Output shape matches input shape for various dimensions."""
-  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model)
+  mha = MultiHeadAttention(num_heads=num_heads, d_model=d_model, is_causal=True)
   x = np.random.randn(*shape)
   output = mha.forward(x)
   assert output.shape == shape
@@ -30,7 +30,7 @@ def test_output_shape(num_heads: int, d_model: int, shape: tuple[int, ...]) -> N
 def test_invalid_d_model() -> None:
   """Should raise error if d_model is not divisible by num_heads."""
   with pytest.raises(ValueError, match="d_model should be a multiple of num_heads"):
-    MultiHeadAttention(num_heads=4, d_model=63)
+    MultiHeadAttention(num_heads=4, d_model=63, is_causal=True)
 
 
 @pytest.mark.parametrize(

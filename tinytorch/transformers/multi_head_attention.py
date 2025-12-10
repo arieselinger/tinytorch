@@ -10,7 +10,7 @@ from tinytorch.transformers.scaled_dot_product_attention import ScaledDotProduct
 
 
 class MultiHeadAttention(OneInputModule):
-  def __init__(self, num_heads: int, d_model: int, is_causal: bool = True) -> None:
+  def __init__(self, num_heads: int, d_model: int, is_causal: bool) -> None:
     """
     Args:
       num_heads: number of attention heads
@@ -45,7 +45,10 @@ class MultiHeadAttention(OneInputModule):
     ]
 
   def forward(
-    self, x: np.ndarray, cache: KVCache | None = None, key_padding_mask: np.ndarray | None = None
+    self,
+    x: np.ndarray,
+    cache: KVCache | None = None,
+    key_padding_mask: np.ndarray | None = None,
   ) -> np.ndarray:
     """
     Args:
