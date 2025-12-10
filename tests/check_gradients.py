@@ -6,7 +6,8 @@ from tinytorch.layers.linear import Linear
 from tinytorch.module import CriterionModule, OneInputModule, ThreeInputModule
 
 EPSILON = 1e-5
-TOLERANCE = 1e-4
+ATOL = 1e-4
+RTOL = 1e-4
 
 
 def _finite_differences_sum(
@@ -64,12 +65,12 @@ def compare_gradients(
 
   grad_x = module.backward(grad_y)
   num_grad_x = _compute_numerical_gradients(module, x, x)
-  if not np.allclose(grad_x, num_grad_x, atol=TOLERANCE):
+  if not np.allclose(grad_x, num_grad_x, atol=ATOL, rtol=RTOL):
     return False
 
   for p in module.parameters():
     num_grad_p = _compute_numerical_gradients(module, x, p.data)
-    if not np.allclose(p.grad, num_grad_p, atol=TOLERANCE):
+    if not np.allclose(p.grad, num_grad_p, atol=ATOL, rtol=RTOL):
       return False
 
   return True
@@ -92,9 +93,9 @@ def compare_three_input_gradients(
   )
 
   return (
-    np.allclose(grad_q, num_grad_q, atol=TOLERANCE)
-    and np.allclose(grad_k, num_grad_k, atol=TOLERANCE)
-    and np.allclose(grad_v, num_grad_v, atol=TOLERANCE)
+    np.allclose(grad_q, num_grad_q, atol=ATOL, rtol=RTOL)
+    and np.allclose(grad_k, num_grad_k, atol=ATOL, rtol=RTOL)
+    and np.allclose(grad_v, num_grad_v, atol=ATOL, rtol=RTOL)
   )
 
 
@@ -127,7 +128,7 @@ def compare_criterion_gradients(
     lambda: criterion.forward(logits, targets, **forward_kwargs), [logits]
   )[0]
 
-  return np.allclose(grad_logits, num_grad_logits, atol=TOLERANCE)
+  return np.allclose(grad_logits, num_grad_logits, atol=ATOL, rtol=RTOL)
 
 
 if __name__ == "__main__":

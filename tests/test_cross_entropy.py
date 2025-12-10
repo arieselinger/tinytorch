@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from tests.check_gradients import TOLERANCE, compare_criterion_gradients
+from tests.check_gradients import ATOL, compare_criterion_gradients
 from tinytorch.criteria.cross_entropy import SoftmaxCrossEntropyLoss
 
 
@@ -54,7 +54,7 @@ class TestSoftmaxCrossEntropyLoss:
     targets = np.random.randint(0, 5, size=(10,))
     criterion.forward(logits, targets)
     grad = criterion.backward()
-    assert np.allclose(grad.sum(axis=-1), 0.0, atol=TOLERANCE)
+    assert np.allclose(grad.sum(axis=-1), 0.0, atol=ATOL)
 
   def test_numerical_stability(self) -> None:
     """Test that implementation is numerically stable with large logits."""
@@ -73,7 +73,7 @@ class TestSoftmaxCrossEntropyLoss:
 
     loss_with_ignore = criterion.forward(logits, targets, ignore_index=ignore_index)
     loss_manual = SoftmaxCrossEntropyLoss().forward(logits[[0, 2], :], targets[[0, 2]])
-    assert np.isclose(loss_with_ignore, loss_manual, atol=TOLERANCE)
+    assert np.isclose(loss_with_ignore, loss_manual, atol=ATOL)
 
   @pytest.mark.parametrize(
     "ignore_index",
@@ -93,5 +93,5 @@ class TestSoftmaxCrossEntropyLoss:
     # Verify ignored positions have zero gradient
     criterion.forward(logits, targets, ignore_index=ignore_index)
     grad = criterion.backward()
-    assert np.allclose(grad[1], 0.0, atol=TOLERANCE)
-    assert np.allclose(grad[3], 0.0, atol=TOLERANCE)
+    assert np.allclose(grad[1], 0.0, atol=ATOL)
+    assert np.allclose(grad[3], 0.0, atol=ATOL)
